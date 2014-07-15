@@ -12,6 +12,8 @@ setup(
     install_requires=[
         'django',
         'path.py',
+        'django-crequest',
+        'requests',
     ],
     packages=['ifmo_mod'],
     include_package_data=True,
