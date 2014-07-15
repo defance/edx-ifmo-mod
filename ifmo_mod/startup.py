@@ -14,13 +14,6 @@ def patch_templates():
 
 
 def run():
-    log.info('patching templates')
     patch_templates()
-
-    log.info('patching course')
     course.patch()
-
-    log.info('patching problem')
     problem.patch()
-
-    log.info('all done')
