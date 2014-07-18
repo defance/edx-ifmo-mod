@@ -2,10 +2,13 @@ from capa.inputtypes import InputTypeBase
 from capa.correctmap import CorrectMap
 from capa.responsetypes import LoncapaResponse
 
+import logging
+log = logging.getLogger(__name__)
+
 
 class VLAppletInput(InputTypeBase):
     template = 'problems/vlapplet.html.mako'
-    tags = ['vlapplet']
+    tags = ['javaapplet']
 
     height = 0
     width = 0
@@ -19,11 +22,10 @@ class VLAppletInput(InputTypeBase):
         log = logging.getLogger(__name__)
         log.error("setup vlapplet")
 
-        self.description = self.xml.findtext('./description')
-        self.height = self.xml.findtext('./height')
-        self.width = self.xml.findtext('./width')
-        self.archive = self.xml.findtext('./archive')
-        self.code = self.xml.findtext('./code')
+        self.width = self.xml.get('width', 0)
+        self.height = self.xml.get('height', 0)
+        self.archive = self.xml.get('archive', None)
+        self.code = self.xml.get('code', None)
 
         if self.archive is None or self.code is None:
             raise ValueError(
@@ -35,8 +37,7 @@ class VLAppletInput(InputTypeBase):
             'height': self.height,
             'width': self.width,
             'archive': self.archive,
-            'code': self.code,
-            'description': self.description
+            'code': self.code
         }
 
 
@@ -50,27 +51,22 @@ class VLAppletResponse(LoncapaResponse):
     Mark-up template:
 
     <problem>
-        <vlappletresponse>
-            <vlapplet>
-                <title>Test applet</title>
-                <description>This is test applet.</description>
-                <width>540</width>
-                <height>320</height>
-                <archive>/static/usolcev-test.jar</archive>
-                <code>Test.class</code>
-            </vlapplet>
-        </vlappletresponse>
+        <javaappletresponse>
+            <javaapplet height="100" width="100" archive="program.jar" code="my.class"/>
+        </javaappletresponse>
     </problem>
     """
 
-    tags = ['vlappletresponse']
-    allowed_inputfields = ['vlapplet']
+    tags = ['javaappletresponse']
+    allowed_inputfields = ['javaapplet']
     max_inputfields = 1
 
     def setup_response(self):
         self.answer_fields = self.inputfields[0]
 
     def get_score(self, student_answers):
+
+        log.error('pew')
 
         def make_cmap(status='incorrect', points=0, msg=''):
             return CorrectMap(self.answer_id, status, npoints=points, msg=msg)
