@@ -1,33 +1,41 @@
+## mako
 <section>
 
-## TODO Hide navigation bars somehow else, scoped attribute wont be supported like so
-<style type="text/css" scoped="scoped">
-section.course-content nav {
-  display: none;
-}
-</style>
+    <style type="text/css">
+        input[type="button"].start_lab {
+          float: left;
+          margin-right: 5px;
+          height: 40px;
+          /*margin-top: 1px;*/
+        }
+    </style>
 
-<div>
-    <p>${description}</p>
-    <p>Go to <a href="http://htmlacademy.ru/basic_html_css/${course}" target="_blank">HTML Academy</a></p>
-</div>
+    <%
+        html_academy_link = "http://htmlacademy.ru/{course_name}/{course_element}".format(
+            course_name=course_name,
+            course_element=course_element
+        )
+    %>
+    <div class="action">
+        <input type="button" class="start_lab" onclick="javascript:window.location='${html_academy_link}'" value="Start" />
+    </div>
 
-<form id="inputtype_${id}" class="capa_inputtype">
+    <form id="inputtype_${id}" class="capa_inputtype">
 
-<fieldset>
-    <input type='hidden' id='input_${id}' name='input_${id}' value=''/>
-    <input type='hidden' id='input_${id}_user' name='input_${id}_user' value='${userid}'/>
-</fieldset>
+    <fieldset>
+        <input type='hidden' id='input_${id}' name='input_${id}' value=''/>
+        <input type='hidden' id='input_${id}_user' name='input_${id}_user' value='${userid}'/>
+    </fieldset>
 
-</form>
+    </form>
 
-<script>
-$(function(){
-    if(location.hash === '#problem_check') {
-        setTimeout(function(){$('.check').trigger('click');}, 10);
-        window.location.hash = '';
-    }
-});
-</script>
+    <script>
+    $(function(){
+        if(location.hash === '#problem_check') {
+            setTimeout(function(){$('.check').trigger('click');}, 10);
+            window.location.hash = '';
+        }
+    });
+    </script>
 
 </section>

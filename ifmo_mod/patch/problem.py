@@ -11,11 +11,10 @@ def _register_loncapa_problem_type(response_type=None, input_type=None):
 
 def _register_loncapa_input_types():
     from ..problems import (
-        html_academy, html_academy_v2, vlapplet, academicnt
+        html_academy, vlapplet, academicnt
     )
     new_problem_types = (
         (html_academy.HTMLAcademyResponse, html_academy.HTMLAcademyInput),
-        (html_academy_v2.HTMLAcademy2Response, html_academy_v2.HTMLAcademy2Input),
         (vlapplet.VLAppletResponse, vlapplet.VLAppletInput),
         (academicnt.AcademicNTResponse, academicnt.AcademicNTInput),
     )
