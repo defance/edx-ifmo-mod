@@ -1,31 +1,43 @@
+## mako
+
+<%!
+    from django.core.urlresolvers import reverse
+%>
+
 <section>
 
-<style type="text/css">
-.action input[type="button"].save {
-  position: absolute;
-  left: -1000px;
-}
-button.start_lab {
-  float: left;
-  margin-right: 10px;
-  height: 40px;
-  margin-top: 1px;
-}
-</style>
+    <style type="text/css">
+    input[type="button"].start_lab {
+      float: left;
+      margin-right: 5px;
+      height: 40px;
+      margin-top: 1px;
+    }
+    </style>
 
-<script>
-var testWindow = undefined;
+    <script>
+    var testWindow = undefined;
 
-function openTestWindow() {
-  testWindow = window.open('/external/ant/${courseid}/${unitid}/${ssoid}', 'windowDLC_TEST','height=520,width=740,modal=no,fullscreen=0,status=1,location=1,scrollbars=1', true);
-  testWindow.focus();
-}
-</script>
+    <%
+        ant_link = reverse('ant_external', kwargs={
+            'course': courseid,
+            'unit': unitid,
+            'ssoid': ssoid
+        })
+    %>
 
-<fieldset>
-    <input type='hidden' id='input_${id}_course' name='input_${id}_course' value='${courseid}'/>
-</fieldset>
+    function openTestWindow() {
+      testWindow = window.open('${ant_link}', 'windowDLC_TEST','height=600,width=800,modal=no,fullscreen=0,status=1,location=1,scrollbars=1', true);
+      testWindow.focus();
+    }
+    </script>
 
-<button class="start_lab" onclick="openTestWindow()">Start</button>
+    <fieldset>
+        <input type='hidden' id='input_${id}_course' name='input_${id}_course' value='${courseid}'/>
+    </fieldset>
+
+    <div class="action">
+        <input type="button" class="start_lab" onclick="openTestWindow()" value="Start" />
+    </div>
 
 </section>
