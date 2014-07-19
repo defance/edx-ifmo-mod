@@ -22,6 +22,7 @@ def _patch_variant_url(app_name, urls_module):
 def patch_urls():
     try:
         _patch_variant_url('lms', 'ifmo_mod.urls')
+        _patch_variant_url('cms', 'ifmo_mod.urls')
     except Exception:
         pass
 
