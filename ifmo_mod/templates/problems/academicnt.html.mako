@@ -11,7 +11,6 @@
       float: left;
       margin-right: 5px;
       height: 40px;
-      margin-top: 20px;
     }
     </style>
 
@@ -31,10 +30,12 @@
       testWindow.focus();
     }
     </script>
-
-    <fieldset>
-        <input type='hidden' id='input_${id}_course' name='input_${id}_course' value='${courseid}'/>
-    </fieldset>
+    
+    <form id="inputtype_${id}" class="capa_inputtype">
+        <fieldset>
+            <input type='hidden' id='input_${id}_course' name='input_${id}_course' value='${courseid}'/>
+        </fieldset>
+    </form>
 
     <div class="action">
         <input type="button" class="start_lab" onclick="openTestWindow()" value="Start" />
