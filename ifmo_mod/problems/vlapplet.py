@@ -1,44 +1,101 @@
-from capa.inputtypes import InputTypeBase
+import json
+import hashlib
+
+from capa.inputtypes import InputTypeBase, Attribute
 from capa.correctmap import CorrectMap
 from capa.responsetypes import LoncapaResponse
 
-import logging
-log = logging.getLogger(__name__)
+
+class AppletSecuredStateException(Exception):
+    pass
+
+
+class AppletSecuredState:
+
+    def __init__(self, data, secret=''):
+
+        self._reset()
+
+        if '' == data:
+            return
+
+        try:
+            input_dict = json.loads(data)
+            self.user_state = input_dict['userstate']
+            self.variant = input_dict['variant']
+            self.attempted = input_dict['attempted']
+            if "true" == self.attempted:
+                self.score = input_dict['score']
+                self.display_message = input_dict['display_message']
+                self.system_message = input_dict['system_message']
+            self.hash = input_dict['hash']
+            self.secret = secret
+
+            if not self._hash_is_valid():
+                self._reset()
+                raise AppletSecuredStateException("Hash is not valid")
+
+        except ValueError as error:
+            self._reset()
+            raise AppletSecuredStateException("Bad secured data: %s" % (error,))
+
+    def _reset(self):
+        self.user_state = ''
+        self.variant = ''
+        self.score = ''
+        self.display_message = ''
+        self.system_message = ''
+        self.attempted = ''
+        self.hash = ''
+        self.secret = ''
+
+    def _hash_is_valid(self):
+        string = "".join([self.user_state, self.variant])
+        if "true" == self.attempted:
+            string = "".join([string, self.score, self.display_message, self.system_message])
+        string = "".join([string, self.attempted, self.secret])
+        hashed_string = hashlib.sha1(string).hexdigest()
+        return hashed_string == self.hash
 
 
 class VLAppletInput(InputTypeBase):
     template = 'problems/vlapplet.html.mako'
     tags = ['javaapplet']
 
-    height = 0
-    width = 0
-    archive = None
-    code = None
-    description = None
+    @classmethod
+    def get_attributes(cls):
+        """
+        Register the attributes.
+        """
+        return [
+            Attribute('width', 0),
+            Attribute('height', 0),
+            Attribute('archive', None),
+            Attribute('code', None),
+            Attribute('secret', render=False),
+            Attribute('meta', ''),
+        ]
 
     def setup(self):
-
-        import logging
-        log = logging.getLogger(__name__)
-        log.error("setup vlapplet")
-
-        self.width = self.xml.get('width', 0)
-        self.height = self.xml.get('height', 0)
-        self.archive = self.xml.get('archive', None)
-        self.code = self.xml.get('code', None)
-
-        if self.archive is None or self.code is None:
-            raise ValueError(
-                'Error while reading attributes "archive" and/or "code" for <applet/>'
-            )
+        self.state = AppletSecuredState(self.value, secret=self.loaded_attributes['secret'])
 
     def _extra_context(self):
         return {
-            'height': self.height,
-            'width': self.width,
-            'archive': self.archive,
-            'code': self.code
+            'variant': self.state.variant,
+            'user_state': self.state.user_state,
+            'attempted': self.state.attempted,
+            'hash': self._hash(),
         }
+
+    def _hash(self):
+        string = "".join([self.state.user_state, self.state.variant, self.state.attempted])
+        if "debug" in self.loaded_attributes['meta']:
+            string += "true"
+        else:
+            string += "false"
+        string = "".join([string, self.loaded_attributes['meta'], self.state.secret])
+        print string
+        return hashlib.sha1(string).hexdigest()
 
 
 class VLAppletResponse(LoncapaResponse):
@@ -52,7 +109,7 @@ class VLAppletResponse(LoncapaResponse):
 
     <problem>
         <javaappletresponse>
-            <javaapplet height="100" width="100" archive="program.jar" code="my.class"/>
+            <javaapplet height="100" width="100" archive="program.jar" code="my.class" secret="secret-string"/>
         </javaappletresponse>
     </problem>
     """
@@ -62,22 +119,25 @@ class VLAppletResponse(LoncapaResponse):
     max_inputfields = 1
 
     def setup_response(self):
-        self.answer_fields = self.inputfields[0]
+        pass
 
     def get_score(self, student_answers):
 
-        log.error('pew')
+        input_field = self.inputfields[0]
+        state = AppletSecuredState(student_answers[self.answer_id], input_field.get('secret', ''))
+        score = float(state.score)
 
-        def make_cmap(status='incorrect', points=0, msg=''):
-            return CorrectMap(self.answer_id, status, npoints=points, msg=msg)
+        if score == 0:
+            status = 'incorrect'
+            message = 'You answer is incorrect.'
+        elif score == 1:
+            status = 'correct'
+            message = 'Your answer is correct. Your total score: %.2f' % (score,)
+        else:
+            status = 'partial'
+            message = 'Your answer is partially correct. Your total score: %.2f' % (score,)
 
-        result = make_cmap()
-
-        try:
-            result.set_property(self.answer_id, 'npoints', float(student_answers[self.answer_id+'_score']))
-            result.set_property(self.answer_id, 'correctness', 'correct')
-        except ValueError:
-            result.msg = 'Error in result handling.'
+        result = CorrectMap(self.answer_id, status, npoints=score, msg=message)
 
         return result
 

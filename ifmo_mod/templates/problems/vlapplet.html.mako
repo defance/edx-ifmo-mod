@@ -1,24 +1,42 @@
 <section>
 
-    <object name="vlapplet" classid="java:${code}" type="application/x-java-applet" archive="${archive}"
-            height="${height}" width="${width}" >
+  % if "true" == attempted and msg:
+    <div class="ifmo-applet-message capa_alert">${msg|n}</div>
+  % endif
+
+    <object id="usolcev_applet_${id}" type="application/x-java-applet"
+            classid="java:${code}" archive="${archive}"
+	        width="${width}" height="${height}" >
+        <!--param name="codebase" value="./" /-->
+        <param name="code" value="${code}" />
         <param name="archive" value="${archive}" />
+        <param name="scriptable" value="true" />
+        <param name="mayscript" value="true" />
+
+        <param name="variant" value="${variant}"/>
+        <param name="previousUserState" value="${user_state}" />
+        <param name="attempted" value="${attempted}"/>
+
+        % if meta == "debug":
+        <param name="data_out" value="true"/>
+        % endif
+
+        Java applet failed to load
     </object>
 
     <form id="inputtype_${id}" class="capa_inputtype">
-
-    <fieldset>
-        <input type='hidden' id='input_${id}' name='input_${id}' value=''/>
-        ## TODO Protect score field in vlab applet
-        <input type='hidden' id='input_${id}_score' name='input_${id}_score' value=''/>
-    </fieldset>
-
+        <fieldset>
+            <input type='hidden' id='input_${id}' name='input_${id}' value=''/>
+        </fieldset>
     </form>
 
     <script>
     $(function(){
         $('.check').click(function(){
-            $('#input_${id}_score').val(vlapplet.getScore());
+            $('#input_${id}').val($('#usolcev_applet_${id}')[0].getSecuredState("true"));
+        });
+        $('.save').click(function(){
+            $('#input_${id}').val($('#usolcev_applet_${id}')[0].getSecuredState("false"));
         });
     });
     </script>
