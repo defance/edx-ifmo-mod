@@ -12,6 +12,7 @@
         <param name="archive" value="${archive}" />
         <param name="scriptable" value="true" />
         <param name="mayscript" value="true" />
+        <param name="hash" value="${hash}" />
 
         <param name="variant" value="${variant}"/>
         <param name="previousUserState" value="${user_state}" />
@@ -21,7 +22,7 @@
         <param name="data_out" value="true"/>
         % endif
 
-        Java applet failed to load
+        <pre>Java applet failed to load</pre>
     </object>
 
     <form id="inputtype_${id}" class="capa_inputtype">
