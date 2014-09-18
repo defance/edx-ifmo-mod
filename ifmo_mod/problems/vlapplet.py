@@ -16,6 +16,7 @@ class AppletSecuredState:
 
         self._reset()
 
+        self.secret = secret
         if '' == data:
             return
 
@@ -29,7 +30,6 @@ class AppletSecuredState:
                 self.display_message = input_dict['display_message']
                 self.system_message = input_dict['system_message']
             self.hash = input_dict['hash']
-            self.secret = secret
 
             if not self._hash_is_valid():
                 self._reset()
@@ -89,10 +89,11 @@ class VLAppletInput(InputTypeBase):
 
     def _hash(self):
         string = "".join([self.state.user_state, self.state.variant, self.state.attempted])
+        # This is supposed to be data_out param
         if "debug" in self.loaded_attributes['meta']:
             string += "true"
         else:
-            string += "false"
+            string += ""
         string = "".join([string, self.loaded_attributes['meta'], self.state.secret])
         print string
         return hashlib.sha1(string).hexdigest()
