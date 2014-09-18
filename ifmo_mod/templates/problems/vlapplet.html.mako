@@ -12,7 +12,9 @@
         <param name="archive" value="${archive}" />
         <param name="scriptable" value="true" />
         <param name="mayscript" value="true" />
+
         <param name="hash" value="${hash}" />
+        <param name="meta" value="${meta}" />
 
         <param name="variant" value="${variant}"/>
         <param name="previousUserState" value="${user_state}" />
