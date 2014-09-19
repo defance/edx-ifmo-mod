@@ -1,30 +1,24 @@
-from capa.inputtypes import InputTypeBase
-from capa.correctmap import CorrectMap
-from capa.responsetypes import LoncapaResponse, ResponseError
-
 import json
 import requests
 
-from ifmo_mod.utils import (get_current_ssoid, get_current_request, get_current_uri,)
+from capa.inputtypes import InputTypeBase, Attribute
+from capa.correctmap import CorrectMap
+from capa.responsetypes import LoncapaResponse, ResponseError
+from ifmo_mod.utils import get_current_ssoid
 
 
 class HTMLAcademyInput(InputTypeBase):
-    template = 'problems/htmlacademy/input.html.mako'
+    template = 'problems/htmlacademy/htmlacademy.html.mako'
     tags = ['htmlacademyinput']
 
-    def setup(self):
-        self.course_name = self.xml.get('name')
-        self.course_shortname = self.xml.get('shortname')
-        self.course_element = self.xml.get('element')
-        self.userid = get_current_ssoid()
-
-    def _extra_context(self):
-        return {
-            'course_name': self.course_name,
-            'course_shortname': self.course_shortname,
-            'course_element': self.course_element,
-            'userid': self.userid,
-        }
+    @classmethod
+    def get_attributes(cls):
+        return [
+            Attribute('name', None),
+            Attribute('shortname', None),
+            Attribute('element', None),
+            Attribute('userid', None),
+        ]
 
 
 class HTMLAcademyResponse(LoncapaResponse):
@@ -33,35 +27,42 @@ class HTMLAcademyResponse(LoncapaResponse):
     allowed_inputfields = ['htmlacademyinput']
     max_inputfields = 1
 
+    academy_url = 'http://htmlacademy.ru/api/get_progress?course={shortname}&ifmo_user_id={user}'
+
     def setup_response(self):
-        self.answer_fields = self.inputfields[0]
-        # FIXME Why must this be doubled here and in inputfields.py?
-        self.course_id = self.answer_fields.get('element')
-        self.shortname = self.answer_fields.get('shortname')
+        input_field = self.inputfields[0]
+        input_field.set('userid', get_current_ssoid())
 
     def get_score(self, student_answers):
 
-        def make_cmap(status='incorrect', points=0, msg=''):
-            return CorrectMap(self.answer_id, status, npoints=points, msg=msg)
+        # Here can be a cycle to have several html academies inputs, now we have only one
+        input_id = self.answer_ids[0]
 
-        # Get stat for current user
-        user = get_current_ssoid()
-        ext_response = self.do_external_request(user, self.shortname)
+        input_field = {
+            'user': student_answers[input_id + '_user'],
+            'name': student_answers[input_id + '_name'],
+            'shortname': student_answers[input_id + '_shortname'],
+            'element': student_answers[input_id + '_element'],
+        }
 
-        # If any error occurred -- we are done
-        if isinstance(ext_response, dict) and 'error' in ext_response:
-            return make_cmap(msg=ext_response['error'])
+        # Do request towards html academy
+        ext_response = self.do_external_request(input_field['user'], input_field['shortname'])
+
+        points_earned = 0
 
         # Find course we are checking
         for el in ext_response:
             # FIXME Pretty brave assumption, make it error-prone
-            if int(self.course_id) == el['course_number']:
-                points_earned = float(el['tasks_completed']) / el['tasks_total'] * self.get_max_score()
+            if int(input_field['element']) == el['course_number']:
                 # Ew, gross!
+                points_earned = float(el['tasks_completed']) / el['tasks_total'] * self.get_max_score()
                 points_earned = round(points_earned * 100) / float(100)
-                return make_cmap(status='correct', points=points_earned)
+                break
 
-        return make_cmap()
+        msg = "Your total score: %s" % (points_earned,)
+        status = 'incorrect' if points_earned == 0 else 'correct' if points_earned == 1 else 'partially'
+
+        return CorrectMap(self.answer_id, status, npoints=points_earned, msg=msg)
 
     def get_answers(self):
         return {}
@@ -70,7 +71,7 @@ class HTMLAcademyResponse(LoncapaResponse):
     def do_external_request(cls, ssoid=0, shortname=''):
 
         # FIXME Hardcoded url
-        url = 'http://htmlacademy.ru/api/get_progress?course={shortname}&ifmo_user_id={user}'.format(user=ssoid, shortname=shortname)
+        url = cls.academy_url.format(user=ssoid, shortname=shortname)
         try:
             request = requests.post(url)
         except Exception:

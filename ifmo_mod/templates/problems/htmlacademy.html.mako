@@ -2,6 +2,10 @@
 
 <section>
 
+  % if msg:
+    <div class="ifmo-applet-message capa_alert">${msg|n}</div>
+  % endif
+
     <style type="text/css">
         input[type="button"].start_lab {
           float: left;
@@ -21,15 +25,17 @@
 
     <form id="inputtype_${id}" class="capa_inputtype">
         <fieldset>
-            <input type='hidden' id='input_${id}' name='input_${id}' value=''/>
+            <input type='hidden' id='input_${id}_name' name='input_${id}_name' value='${name}'/>
+            <input type='hidden' id='input_${id}_shortname' name='input_${id}_shortname' value='${shortname}'/>
+            <input type='hidden' id='input_${id}_element' name='input_${id}_element' value='${element}'/>
             <input type='hidden' id='input_${id}_user' name='input_${id}_user' value='${userid}'/>
         </fieldset>
     </form>
 
     <%
-        html_academy_link = "http://htmlacademy.ru/{course_name}/{course_element}".format(
-            course_name=course_name,
-            course_element=course_element
+        html_academy_link = "http://htmlacademy.ru/{name}/{element}".format(
+            name=name,
+            element=element
         )
     %>
     <div class="action">
