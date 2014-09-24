@@ -95,7 +95,6 @@ class VLAppletInput(InputTypeBase):
         else:
             string += ""
         string = "".join([string, self.loaded_attributes['meta'], self.state.secret])
-        print string
         return hashlib.sha1(string).hexdigest()
 
 
