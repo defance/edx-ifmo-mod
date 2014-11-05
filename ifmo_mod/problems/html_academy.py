@@ -8,7 +8,7 @@ from ifmo_mod.utils import get_current_ssoid
 
 
 class HTMLAcademyInput(InputTypeBase):
-    template = 'problems/htmlacademy/htmlacademy.html.mako'
+    template = 'problems/htmlacademy.html.mako'
     tags = ['htmlacademyinput']
 
     @classmethod
