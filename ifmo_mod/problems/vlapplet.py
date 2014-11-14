@@ -54,7 +54,7 @@ class AppletSecuredState:
         if "true" == self.attempted:
             string = "".join([string, self.score, self.display_message, self.system_message])
         string = "".join([string, self.attempted, self.secret])
-        hashed_string = hashlib.sha1(string).hexdigest()
+        hashed_string = hashlib.sha1(string.encode('utf-8')).hexdigest()
         return hashed_string == self.hash
 
 
