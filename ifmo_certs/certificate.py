@@ -163,7 +163,7 @@ class CertificateBase(object):
 
     @property
     def certificate_status(self):
-        return 'downloadable' if self.type in ['Honor', 'Simple'] else 'notpassing'
+        return 'downloadable' if self.type in ['"Honor"', '"Simple"'] else 'notpassing'
 
     @property
     def student_name(self):
