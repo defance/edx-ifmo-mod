@@ -12,19 +12,19 @@ class Command(BaseCommand):
     help = 'Closes the specified poll for voting'
 
     certificates = {
-        'x0005_00': X0005_00,
+        # 'x0005_00': X0005_00,
         'x0008_00': X0008_00
     }
 
     option_list = BaseCommand.option_list + (
         make_option('-o', '--output',
-                    dest='output', default='/tmp/edx-ifmo-certs/',
+                    dest='output', default='/edx/var/edxapp/certificates',
                     help="Output path. Must be writeable."),
         make_option('-i', '--input',
                     dest='input', default=None,
                     help="CVS file with following lines: <user_id>,<percentage_0-100>,<cert_type>"),
         make_option('-s', '--strategy',
-                    dest='strategy', default='ignore',
+                    dest='strategy', default='update',
                     choices=['ignore', 'update', 'fail'],
                     help="Strategy"),
         make_option('-c', '--course',
@@ -37,17 +37,15 @@ class Command(BaseCommand):
 
         print "Generating certificates"
 
-        print options
-
         if options.get('course') is None:
             raise CommandError('Course is not specified.')
 
-        sys = CertSys(strategy='update', generate=True, storage_prefix='/tmp')
+        sys = CertSys(strategy=options.get('strategy'), generate=True, storage_prefix=options.get('output'))
 
         try:
             with open(options.get('input'), 'r') as f:
                 for line in f:
-                    certificate = self.certificates[options.get('course')].from_string(line, sys)
+                    certificate = self.certificates[options.get('course')].from_string(line.strip(), sys)
                     certificate.process()
         except Exception as e:
             raise CommandError(e)
