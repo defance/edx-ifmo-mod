@@ -8,14 +8,15 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
     name='edx-ifmo-mod',
-    version='0.1',
+    version='0.2',
     install_requires=[
         'django',
         'path.py',
         'django-crequest',
         'requests',
+        'weasyprint'
     ],
-    packages=['ifmo_mod'],
+    packages=['ifmo_mod', 'ifmo_certs'],
     include_package_data=True,
     license='BSD License',
     description='Package provides ifmo courses specific modules.',

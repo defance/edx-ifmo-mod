@@ -1,0 +1,39 @@
+@page {
+    margin: 0cm 0cm;
+}
+
+body { text-align: center; font-family: sans-serif }
+
+div.logo-container {height: 100pt;}
+
+div.logo-ifmo {height: 100pt; float: left}
+div.logo-ifmo img { height: 70pt; width: 77pt;  }
+
+div.logo-courses {float: right; height: 100pt; }
+div.logo-courses img { height: 36pt; width: 180pt; margin-top: 20pt;  }
+
+div.header-container {text-align: center}
+div.header {width: 280pt; margin: auto;}
+div.header h1 {color: #1c7db8; font-size: 40pt; font-weight: bold; margin-bottom: 10pt;}
+div.header h2 {color: white; background-color: #f16529; margin: 0; font-size: 12pt; padding: 5pt; text-transform: uppercase}
+
+div.name-container {height: 110pt; border: 1px solid red; }
+div.name-container p.name { text-transform: uppercase; color: #1c7db8; font-size: 26pt;}
+
+div.for-container { height: 30pt; border: 1px solid red; padding: 0}
+div.for-container p.for { font-size: 11pt; margin: 0}
+
+body {background-image: url('cert_with_x0008-00_noFIO.png'); }
+
+div#name {
+  position: absolute;
+  padding: 0;
+  color: #1e7db8;
+  font-size: 28pt;
+  text-transform: uppercase;
+  /* top: 4.25in; */
+  top: 4.1in;
+  width: 8.27in;
+  text-align: center;
+  /* font-family: "Myriad Pro" */
+}
