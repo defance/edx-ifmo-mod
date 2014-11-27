@@ -23,7 +23,7 @@ class CertificateBase(object):
     # HTML File
     source_dir = ''
     source_files = {}
-    course_id = 'ITMO/x0003.00/2014'
+    course_id = ''
     course_name = ''
 
     certificate_obj = None
@@ -168,8 +168,8 @@ class CertificateBase(object):
     @property
     def student_name(self):
         user = User.objects.get(id=self.user_id)
-        return user.profile.name
+        return " ".join([user.last_name, user.first_name])
 
     @property
     def student_printed_name(self):
-        return "<br/>".join(self.student_name.split(None, 1))
+        return self.student_name
