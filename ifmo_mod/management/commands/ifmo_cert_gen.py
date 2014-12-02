@@ -5,6 +5,7 @@ from ifmo_certs import CertificateBase, CertSys, CertificateError
 
 # from ifmo_certs.courses.x0005_00 import X0005_00
 from ifmo_certs.courses.x0008_00 import X0008_00
+from ifmo_certs.courses.x0005_01 import X0005_01
 
 
 class Command(BaseCommand):
@@ -13,7 +14,9 @@ class Command(BaseCommand):
 
     certificates = {
         # 'x0005_00': X0005_00,
-        'x0008_00': X0008_00
+        'x0008_00': X0008_00,
+        'x0005_01': X0008_00,
+
     }
 
     option_list = BaseCommand.option_list + (
@@ -30,7 +33,7 @@ class Command(BaseCommand):
         make_option('-c', '--course',
                     dest='course', default=None,
                     # choices=[certificates.keys()],
-                    help="Course"),
+                    help="Course one of following: %s" % certificates.keys()),
     )
 
     def handle(self, *args, **options):

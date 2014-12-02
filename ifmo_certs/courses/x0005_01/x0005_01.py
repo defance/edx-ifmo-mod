@@ -4,7 +4,7 @@ from ifmo_certs import CertificateBase
 from path import path
 
 
-class X0008_00(CertificateBase):  # noqa
+class X0005_01(CertificateBase):  # noqa
 
     source_files = {
         'Simple': 'certificate.html',
