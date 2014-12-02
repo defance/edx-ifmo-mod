@@ -15,8 +15,7 @@ class Command(BaseCommand):
     certificates = {
         # 'x0005_00': X0005_00,
         'x0008_00': X0008_00,
-        'x0005_01': X0008_00,
-
+        'x0005_01': X0005_01,
     }
 
     option_list = BaseCommand.option_list + (
