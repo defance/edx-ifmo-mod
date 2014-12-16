@@ -7,17 +7,19 @@ from ifmo_certs import CertificateBase, CertSys, CertificateError
 from ifmo_certs.courses.x0008_00 import *
 from ifmo_certs.courses.x0005_01 import *
 from ifmo_certs.courses.x0002_01 import *
+from ifmo_certs.courses.x0003_01 import *
 
 
 class Command(BaseCommand):
-    args = '<poll_id poll_id ...>'
-    help = 'Closes the specified poll for voting'
+    args = '-i <input_file> -c <course> [-o <output_directory>] [-s <strategy: ignore|update|fail>]'
+    help = 'Create certificates'
 
     certificates = {
         # 'x0005_00': X0005_00,
         'x0008_00': X0008_00,
         'x0005_01': X0005_01,
         'x0002_01': X0002_01,
+        'x0003_01': X0003_01
     }
 
     option_list = BaseCommand.option_list + (
