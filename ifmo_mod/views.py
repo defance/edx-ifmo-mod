@@ -1,8 +1,10 @@
 from django.conf import settings
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound
 from django.views.decorators.http import require_POST
 from student import views as student_views
+from student.models import CourseEnrollment
 from edxmako.shortcuts import render_to_response
+from xmodule.modulestore.django import modulestore
 
 import logging
 log = logging.getLogger(__name__)
@@ -69,3 +71,24 @@ def change_enrollment(request):
 
     # Return original response
     return response
+
+
+def summary(request):
+    """
+    Get course summary, as: course_id, display_name, start_date and enrolled_users.
+    :param request:
+    :return:
+    """
+
+    if not request.user.is_superuser:
+        return HttpResponseNotFound()
+
+    courses = modulestore().get_courses()
+    courses = [{
+        'id': unicode(i.id),
+        'display_name': "%s %s" % (i.id.course, i.display_name),
+        'start': i.start,
+        'enrolled': CourseEnrollment.enrollment_counts(i.id)
+    } for i in courses]
+    courses = sorted(courses, key=lambda x: x['start'])
+    return render_to_response('summary.html', dictionary={'courses': courses})

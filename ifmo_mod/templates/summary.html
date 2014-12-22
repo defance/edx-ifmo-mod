@@ -1,0 +1,35 @@
+##mako
+
+## TODO Move this to static_static templates
+
+<%! from django.utils.translation import ugettext as _ %>
+<%namespace name='static' file='/static_content.html'/>
+
+<%inherit file="main.html" />
+
+<%block name="pagetitle">${_("Summary")}</%block>
+
+<section class="container about ifmo-content">
+
+    <h1>Summary</h1>
+
+    <hr class="horizontal-divider">
+
+    <table>
+        <tr>
+            <th>id</th>
+            <th>Course name</th>
+            <th>Start date</th>
+            <th>Enrolled</th>
+        </tr>
+        % for course in courses:
+        <tr>
+            <td>${ course['id'] }</td>
+            <td>${ course['display_name'] }</td>
+            <td>${ course['start'] }</td>
+            <td>${ course['enrolled']['total'] }</td>
+        </tr>
+        % endfor
+    </table>
+
+</section>
