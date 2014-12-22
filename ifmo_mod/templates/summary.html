@@ -18,21 +18,29 @@
     <style scoped="scoped">
         .sum_a_c { text-align: center; }
         .sum_a_l { text-align: left; }
+        button.control { color: white; }
     </style>
+
+    <button class="control" onclick="$('.sum_col_id').toggle()">Toggle ID</button>
+    <button class="control" onclick="$('.sum_col_course_name').toggle()">Course name</button>
+    <button class="control" onclick="$('.sum_col_enrolled').toggle()">Course enrolled</button>
+    <button class="control" onclick="$('.sum_col_start').toggle()">Course start date</button>
+
+    <hr class="horizontal-divider">
 
     <table>
         <tr>
-            <th>id</th>
-            <th>Course name</th>
-            <th>Enrolled</th>
-            <th>Start date</th>
+            <th class="sum_col_id">id</th>
+            <th class="sum_col_course_name">Course name</th>
+            <th class="sum_col_enrolled">Enrolled</th>
+            <th class="sum_col_start">Start date</th>
         </tr>
         % for course in courses:
         <tr>
-            <td class="sum_a_l">${ course['id'] }</td>
-            <td class="sum_a_l">${ course['display_name'] }</td>
-            <td class="sum_a_c">${ course['enrolled']['total'] }</td>
-            <td class="sum_a_c">${ course['start'].strftime('%d.%m.%Y') }</td>
+            <td class="sum_a_l sum_col_id">${ course['id'] }</td>
+            <td class="sum_a_l sum_col_course_name">${ course['display_name'] }</td>
+            <td class="sum_a_c sum_col_enrolled">${ course['enrolled']['total'] }</td>
+            <td class="sum_a_c sum_col_start">${ course['start'].strftime('%d.%m.%Y') }</td>
         </tr>
         % endfor
     </table>
