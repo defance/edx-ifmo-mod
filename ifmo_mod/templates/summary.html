@@ -15,19 +15,24 @@
 
     <hr class="horizontal-divider">
 
+    <style scoped="scoped">
+        .sum_a_c { text-align: center; }
+        .sum_a_l { text-align: left; }
+    </style>
+
     <table>
         <tr>
             <th>id</th>
             <th>Course name</th>
-            <th>Start date</th>
             <th>Enrolled</th>
+            <th>Start date</th>
         </tr>
         % for course in courses:
         <tr>
-            <td>${ course['id'] }</td>
-            <td>${ course['display_name'] }</td>
-            <td>${ course['start'] }</td>
-            <td>${ course['enrolled']['total'] }</td>
+            <td class="sum_a_l">${ course['id'] }</td>
+            <td class="sum_a_l">${ course['display_name'] }</td>
+            <td class="sum_a_c">${ course['enrolled']['total'] }</td>
+            <td class="sum_a_c">${ course['start'].strftime('%d.%m.%Y') }</td>
         </tr>
         % endfor
     </table>
