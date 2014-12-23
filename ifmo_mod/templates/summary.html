@@ -1,7 +1,5 @@
 ##mako
 
-## TODO Move this to static_static templates
-
 <%! from django.utils.translation import ugettext as _ %>
 <%namespace name='static' file='/static_content.html'/>
 
@@ -15,11 +13,17 @@
 
     <hr class="horizontal-divider">
 
-    <style scoped="scoped">
-        .sum_a_c { text-align: center; }
-        .sum_a_l { text-align: left; }
-        button.control { color: white; }
-    </style>
+    <div class="summary-filters-container">
+        <div class="summary-filters-item"><label for="summary-date-picker-from">Date from:</label></div>
+        <div class="summary-filters-item summary-filters-item-control"><input type="text" id="summary-date-picker-from"/></div>
+
+        <div class="summary-filters-item"><label for="summary-date-picker-to">Date to:</label></div>
+        <div class="summary-filters-item summary-filters-item-control"><input type="text" id="summary-date-picker-to"/></div>
+
+        <div class="summary-filters-item"><button class="control" onclick="">Filter</button></div>
+    </div>
+
+    <hr class="horizontal-divider">
 
     <button class="control" onclick="$('.sum_col_id').toggle()">Toggle ID</button>
     <button class="control" onclick="$('.sum_col_course_name').toggle()">Course name</button>
@@ -28,21 +32,46 @@
 
     <hr class="horizontal-divider">
 
-    <table>
-        <tr>
-            <th class="sum_col_id">id</th>
-            <th class="sum_col_course_name">Course name</th>
-            <th class="sum_col_enrolled">Enrolled</th>
-            <th class="sum_col_start">Start date</th>
-        </tr>
-        % for course in courses:
-        <tr>
-            <td class="sum_a_l sum_col_id">${ course['id'] }</td>
-            <td class="sum_a_l sum_col_course_name">${ course['display_name'] }</td>
-            <td class="sum_a_c sum_col_enrolled">${ course['enrolled']['total'] }</td>
-            <td class="sum_a_c sum_col_start">${ course['start'].strftime('%d.%m.%Y') }</td>
-        </tr>
-        % endfor
-    </table>
+    <div id="summary-content">
+        <p>Please wait while data is loading...</p>
+    </div>
 
 </section>
+
+<script type="text/template" id="summary-template-table">
+<%text>
+<table>
+    <tr>
+        <th class="sum_col_id">id</th>
+        <th class="sum_col_course_name">Course name</th>
+        <th class="sum_col_enrolled">Enrolled</th>
+        <th class="sum_col_start">Start date</th>
+    </tr>
+    <% _.each(courses, function(course) { %>
+    <tr>
+        <td class="sum_a_l sum_col_id"><%= course.id %></td>
+        <td class="sum_a_l sum_col_course_name"><%= course.display_name %></td>
+        <td class="sum_a_c sum_col_enrolled"><%= course.enrolled.total %></td>
+        <td class="sum_a_c sum_col_start"><%= course.start %></td>
+    </tr>
+    <% }) %>
+</table>
+</%text>
+</script>
+
+<%block name="js_extra">
+    <script type="text/javascript" src="${static.url('js/jquery.maskedinput/jquery.maskedinput.min.js')}"></script>
+    <script type="text/javascript" src="${static.url('js/ifmo_mod.js')}"></script>
+
+    <script type="text/javascript">
+    </script>
+</%block>
+
+<%block name="css_extra">
+    <link rel="stylesheet" href="${static.url('css/jquery.ui/jquery-ui-1.9.2.custom.css')}"/>
+    <link rel="stylesheet" href="${static.url('css/jquery.ui/jquery.ui.1.9.2.ie.css')}"/>
+    <link rel="stylesheet" href="${static.url('css/ifmo_mod.css')}"/>
+
+    <style type="text/css">
+    </style>
+</%block>

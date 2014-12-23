@@ -1,0 +1,14 @@
+.sum_a_c { text-align: center; }
+.sum_a_l { text-align: left; }
+button.control { color: white; }
+.summary-filters-container {
+    display: table-row;
+}
+.summary-filters-item {
+    display: table-cell;
+    vertical-align: middle;
+}
+.summary-filters-item-control {
+    padding-right: 30px;
+    padding-left: 10px;
+}

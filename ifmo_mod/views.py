@@ -6,6 +6,7 @@ from student.models import CourseEnrollment
 from edxmako.shortcuts import render_to_response
 from xmodule.modulestore.django import modulestore
 
+import json
 import logging
 log = logging.getLogger(__name__)
 
@@ -79,16 +80,24 @@ def summary(request):
     :param request:
     :return:
     """
+    if not request.user.is_superuser:
+        return HttpResponseNotFound()
+
+    return render_to_response('summary.html')
+
+
+def summary_handler(request):
 
     if not request.user.is_superuser:
         return HttpResponseNotFound()
 
     courses = modulestore().get_courses()
+    courses = sorted(courses, key=lambda x: x.start)
     courses = [{
         'id': unicode(i.id),
         'display_name': "%s %s" % (i.id.course, i.display_name),
-        'start': i.start,
+        'start': i.start.strftime('%d/%m/%Y'),
         'enrolled': CourseEnrollment.enrollment_counts(i.id)
     } for i in courses]
-    courses = sorted(courses, key=lambda x: x['start'])
-    return render_to_response('summary.html', dictionary={'courses': courses})
+
+    return HttpResponse(json.dumps({'courses': courses}))
