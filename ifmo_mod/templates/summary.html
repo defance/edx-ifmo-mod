@@ -92,7 +92,7 @@
     <script type="text/javascript">
         $(function() {
             // Need to load underscore manually for old core, be sure delete this after update
-            if (undefined === _) {
+            if ('undefined' == typeof(_)) {
                 $.getScript('${static.url('js/underscore/underscore-min.js')}');
             }
         });
