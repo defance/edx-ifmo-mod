@@ -9,6 +9,7 @@ var Summary = {
     get_data: function() {
         $.ajax({
             url: '/summary_handler',
+            dataType: 'json',
             success: function(data) { Summary.render_course_table(data); }
         })
     }
