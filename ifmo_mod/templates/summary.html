@@ -89,77 +89,19 @@
 </script>
 
 <%block name="js_extra">
+    <script type="text/javascript">
+        $(function() {
+            // Need to load underscore manually for old core, be sure delete this after update
+            if (undefined === _) {
+                $.getScript('${static.url('js/underscore/underscore-min.js')}');
+            }
+        });
+    </script>
+
     <script type="text/javascript" src="${static.url('js/jquery.maskedinput/jquery.maskedinput.min.js')}"></script>
     <script type="text/javascript" src="${static.url('js/ifmo_mod.js')}"></script>
 
     <script type="text/javascript">
-        var SummaryEx =
-        {
-            latest_id: 0,
-
-            add_filter_date: function()
-            {
-                this.latest_id += 1;
-                $('.summary-filters-controls').before(
-                        _.template($('#summary-template-date-field').text())({'id': this.latest_id})
-                );
-                $('#summary-date-picker-'+this.latest_id)
-                        .datepicker({"dateFormat": "dd/mm/yy"})
-                        .mask("99/99/9999")
-                        .val(this.current_date());
-            },
-
-            remove_filter_date: function()
-            {
-                if (1 == this.latest_id) {
-                    return;
-                }
-                $('.summary-filters-item-' + this.latest_id).remove();
-                this.latest_id -= 1;
-            },
-
-            current_date: function()
-            {
-                var d = new Date();
-                return d.getDate() + '/' + (d.getMonth()+1) + '/' + d.getFullYear();
-            },
-
-            reset_view: function()
-            {
-                $('#summary-content').html(_.template($('#summary-template-loading').text())());
-            },
-
-            filter_data: function()
-            {
-                this.reset_view();
-                var dates = [];
-                $('.summary-date-picker').each(function(e){
-                    dates.push(this.value);
-                });
-                $.ajax({
-                    url: '/summary_handler',
-                    dataType: 'json',
-                    data: {'dates': dates},
-                    success: function(data) { SummaryEx.render_course_table(data); }
-                });
-            },
-
-            render_course_table: function(data)
-            {
-                if (data.courses && data.courses.length) {
-                    $('#summary-content').html(_.template($('#summary-template-table').text())(data));
-                }
-            }
-        };
-
-        $(function(){
-            $('#summary-button-add').click(function(e) {SummaryEx.add_filter_date()});
-            $('#summary-button-remove').click(function(e) {SummaryEx.remove_filter_date()});
-            $('#summary-button-filter').click(function(e) {SummaryEx.filter_data()});
-
-            SummaryEx.add_filter_date();
-            SummaryEx.filter_data();
-        });
     </script>
 </%block>
 
@@ -169,27 +111,5 @@
     <link rel="stylesheet" href="${static.url('css/ifmo_mod.css')}"/>
 
     <style type="text/css">
-        .summary-filters-container {
-            height: 30px;
-        }
-        div.loading-text {
-            display: block;
-            text-align: center;
-        }
-        div.loading-text img {
-            margin-right: 20px;
-        }
-        table.summary-table th {
-            background-color: lightsteelblue;
-            padding: 10px;
-        }
-        table.summary-table td {
-            border-bottom: 1px solid lightgray;
-        }
-        table.summary-table {
-            border-collapse: separate;
-            border-spacing: 3px;
-            width: 100%;
-        }
     </style>
 </%block>

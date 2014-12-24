@@ -12,3 +12,26 @@ button.control { color: white; }
     padding-right: 30px;
     padding-left: 10px;
 }
+
+.summary-filters-container {
+    height: 30px;
+}
+div.loading-text {
+    display: block;
+    text-align: center;
+}
+div.loading-text img {
+    margin-right: 20px;
+}
+table.summary-table th {
+    background-color: lightsteelblue;
+    padding: 10px;
+}
+table.summary-table td {
+    border-bottom: 1px solid lightgray;
+}
+table.summary-table {
+    border-collapse: separate;
+    border-spacing: 3px;
+    width: 100%;
+}
