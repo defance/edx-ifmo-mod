@@ -14,49 +14,78 @@
     <hr class="horizontal-divider">
 
     <div class="summary-filters-container">
-        <div class="summary-filters-item"><label for="summary-date-picker-from">Date from:</label></div>
-        <div class="summary-filters-item summary-filters-item-control"><input type="text" id="summary-date-picker-from"/></div>
-
-        <div class="summary-filters-item"><label for="summary-date-picker-to">Date to:</label></div>
-        <div class="summary-filters-item summary-filters-item-control"><input type="text" id="summary-date-picker-to"/></div>
-
-        <div class="summary-filters-item"><button class="control" onclick="">Filter</button></div>
+        <div class="summary-filters-item summary-filters-controls">
+            <button class="control" id="summary-button-add">+</button>
+            <button class="control" id="summary-button-remove">-</button>
+            <button class="control" id="summary-button-filter">Filter</button>
+        </div>
+        <div class="summary-filters-item"></div>
     </div>
 
     <hr class="horizontal-divider">
 
     <button class="control" onclick="$('.sum_col_id').toggle()">Toggle ID</button>
     <button class="control" onclick="$('.sum_col_course_name').toggle()">Course name</button>
-    <button class="control" onclick="$('.sum_col_enrolled').toggle()">Course enrolled</button>
     <button class="control" onclick="$('.sum_col_start').toggle()">Course start date</button>
+    <button class="control" onclick="$('.sum_col_enrolled').toggle()">Course enrolled</button>
 
     <hr class="horizontal-divider">
 
     <div id="summary-content">
-        <p>Please wait while data is loading...</p>
+        <div class="loading-text"><img src="${static.url('img/loaderb64.gif')}"/> Please wait while data is loading...</div>
     </div>
 
 </section>
 
 <script type="text/template" id="summary-template-table">
 <%text>
-<table>
+<table class="summary-table">
     <tr>
-        <th class="sum_col_id">id</th>
-        <th class="sum_col_course_name">Course name</th>
-        <th class="sum_col_enrolled">Enrolled</th>
-        <th class="sum_col_start">Start date</th>
+        <th class="sum_col_id" rowspan="2">id</th>
+        <th class="sum_col_course_name" rowspan="2">Course name</th>
+        <th class="sum_col_start" rowspan="2">Start date</th>
+        <th class="sum_col_enrolled" colspan="<%= dates.length*2 - 1 %>">Enrolled</th>
+    </tr>
+    <tr>
+        <% var first = true; %>
+        <% _.each(dates, function(date) { %>
+            <th class="sum_col_enrolled"><%= date %></th>
+            <% if (!first) { %>
+                <th class="sum_a_c sum_col_enrolled">&Delta;</th>
+            <% } %>
+            <% first = false; %>
+        <% }) %>
     </tr>
     <% _.each(courses, function(course) { %>
     <tr>
         <td class="sum_a_l sum_col_id"><%= course.id %></td>
         <td class="sum_a_l sum_col_course_name"><%= course.display_name %></td>
-        <td class="sum_a_c sum_col_enrolled"><%= course.enrolled.total %></td>
         <td class="sum_a_c sum_col_start"><%= course.start %></td>
+        <% var previous = NaN; %>
+        <% _.each(course.enrollments, function(enrollment) { %>
+            <td class="sum_a_c sum_col_enrolled"><%= enrollment.data.total %></td>
+            <% if (!isNaN(previous)) { %>
+                <% var new_users = enrollment.data.total - previous %>
+                <% var sign = new_users > 0 ? "+" : new_users < 0 ? "-" : "" %>
+                <td class="sum_a_c sum_col_enrolled"><%= sign %><%= new_users %></td>
+            <% } %>
+            <% previous = enrollment.data.total; %>
+        <% }) %>
     </tr>
     <% }) %>
 </table>
 </%text>
+</script>
+
+<script type="text/template" id="summary-template-date-field">
+<%text>
+    <div class="summary-filters-item summary-filters-item-<%= id %>"><label for="summary-date-picker-<%= id %>">Date <%= id %>:</label></div>
+    <div class="summary-filters-item summary-filters-item-<%= id %> summary-filters-item-control"><input type="text" class="summary-date-picker" id="summary-date-picker-<%= id %>"/></div>
+</%text>
+</script>
+
+<script type="text/template" id="summary-template-loading">
+    <div class="loading-text"><img src="${static.url('img/loaderb64.gif')}"/> Please wait while data is loading...</div>
 </script>
 
 <%block name="js_extra">
@@ -64,6 +93,73 @@
     <script type="text/javascript" src="${static.url('js/ifmo_mod.js')}"></script>
 
     <script type="text/javascript">
+        var SummaryEx =
+        {
+            latest_id: 0,
+
+            add_filter_date: function()
+            {
+                this.latest_id += 1;
+                $('.summary-filters-controls').before(
+                        _.template($('#summary-template-date-field').text())({'id': this.latest_id})
+                );
+                $('#summary-date-picker-'+this.latest_id)
+                        .datepicker({"dateFormat": "dd/mm/yy"})
+                        .mask("99/99/9999")
+                        .val(this.current_date());
+            },
+
+            remove_filter_date: function()
+            {
+                if (1 == this.latest_id) {
+                    return;
+                }
+                $('.summary-filters-item-' + this.latest_id).remove();
+                this.latest_id -= 1;
+            },
+
+            current_date: function()
+            {
+                var d = new Date();
+                return d.getDate() + '/' + (d.getMonth()+1) + '/' + d.getFullYear();
+            },
+
+            reset_view: function()
+            {
+                $('#summary-content').html(_.template($('#summary-template-loading').text())());
+            },
+
+            filter_data: function()
+            {
+                this.reset_view();
+                var dates = [];
+                $('.summary-date-picker').each(function(e){
+                    dates.push(this.value);
+                });
+                $.ajax({
+                    url: '/summary_handler',
+                    dataType: 'json',
+                    data: {'dates': dates},
+                    success: function(data) { SummaryEx.render_course_table(data); }
+                });
+            },
+
+            render_course_table: function(data)
+            {
+                if (data.courses && data.courses.length) {
+                    $('#summary-content').html(_.template($('#summary-template-table').text())(data));
+                }
+            }
+        };
+
+        $(function(){
+            $('#summary-button-add').click(function(e) {SummaryEx.add_filter_date()});
+            $('#summary-button-remove').click(function(e) {SummaryEx.remove_filter_date()});
+            $('#summary-button-filter').click(function(e) {SummaryEx.filter_data()});
+
+            SummaryEx.add_filter_date();
+            SummaryEx.filter_data();
+        });
     </script>
 </%block>
 
@@ -73,5 +169,27 @@
     <link rel="stylesheet" href="${static.url('css/ifmo_mod.css')}"/>
 
     <style type="text/css">
+        .summary-filters-container {
+            height: 30px;
+        }
+        div.loading-text {
+            display: block;
+            text-align: center;
+        }
+        div.loading-text img {
+            margin-right: 20px;
+        }
+        table.summary-table th {
+            background-color: lightsteelblue;
+            padding: 10px;
+        }
+        table.summary-table td {
+            border-bottom: 1px solid lightgray;
+        }
+        table.summary-table {
+            border-collapse: separate;
+            border-spacing: 3px;
+            width: 100%;
+        }
     </style>
 </%block>
