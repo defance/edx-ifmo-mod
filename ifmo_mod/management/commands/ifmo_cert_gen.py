@@ -21,7 +21,7 @@ class Command(BaseCommand):
         'x0005_01': X0005_01,
         'x0002_01': X0002_01,
         'x0003_01': X0003_01,
-        'x0009_01': X0009_00
+        'x0009_00': X0009_00
     }
 
     option_list = BaseCommand.option_list + (
