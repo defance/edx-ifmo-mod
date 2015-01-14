@@ -39,7 +39,7 @@ class CertificateBase(object):
     def __init__(self, user_id, percent, type, certsys):
         self.user_id = user_id
         self.percent = percent
-        self.type = type
+        self.type = type.strip().strip('"')
         self.certsys = certsys
 
         self.course_key = CourseKey.from_string(self.course_id)
