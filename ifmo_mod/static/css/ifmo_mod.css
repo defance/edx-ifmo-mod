@@ -1,9 +1,7 @@
 .sum_a_c { text-align: center; }
 .sum_a_l { text-align: left; }
 button.control { color: white; }
-.summary-filters-container {
-    display: table-row;
-}
+
 .summary-filters-item {
     display: table-cell;
     vertical-align: middle;
@@ -14,6 +12,7 @@ button.control { color: white; }
 }
 
 .summary-filters-container {
+    display: table-row;
     height: 30px;
 }
 div.loading-text {
