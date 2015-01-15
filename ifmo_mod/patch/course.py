@@ -1,8 +1,8 @@
-from xblock.fields import Scope, JSONField
+from xblock.fields import Scope, Field
 from xmodule.course_module import CourseFields, CourseDescriptor
 
 
-class AuthorField(JSONField):
+class AuthorField(Field):
     """
     Author field can contain string either in two forms:
      1. JSON array of strings
