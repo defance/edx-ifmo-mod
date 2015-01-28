@@ -32,7 +32,7 @@ class Command(BaseCommand):
 
     option_list = BaseCommand.option_list + (
         make_option('-o', '--output',
-                    dest='output', default='/edx/var/edxapp/certificates',
+                    dest='output', default='/ifmo/var/certificates',
                     help="Output path. Must be writeable."),
         make_option('-i', '--input',
                     dest='input', default=None,
