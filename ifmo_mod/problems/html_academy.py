@@ -27,7 +27,7 @@ class HTMLAcademyResponse(LoncapaResponse):
     allowed_inputfields = ['htmlacademyinput']
     max_inputfields = 1
 
-    academy_url = 'http://htmlacademy.ru/api/get_progress?course={shortname}&ifmo_user_id={user}'
+    academy_url = 'https://htmlacademy.ru/api/get_progress?course={shortname}&ifmo_user_id={user}'
 
     def setup_response(self):
         input_field = self.inputfields[0]

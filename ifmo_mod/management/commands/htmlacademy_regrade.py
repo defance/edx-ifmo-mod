@@ -41,7 +41,7 @@ class Command(BaseCommand):
                     help='Persist the changes that were encountered. If not set, no changes are saved.'),
     )
 
-    url = 'http://htmlacademy.ru/api/get_progress?course=%s&ifmo_user_id=%s'
+    url = 'https://htmlacademy.ru/api/get_progress?course=%s&ifmo_user_id=%s'
 
     report = {
         'skipped': 0,

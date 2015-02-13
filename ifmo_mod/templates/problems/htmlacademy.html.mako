@@ -33,7 +33,7 @@
     </form>
 
     <%
-        html_academy_link = "http://htmlacademy.ru/{name}/{element}".format(
+        html_academy_link = "https://htmlacademy.ru/{name}/{element}".format(
             name=name,
             element=element
         )
