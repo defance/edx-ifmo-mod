@@ -1,9 +1,11 @@
 from django.conf import settings
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound
 from django.views.decorators.http import require_POST
+from edxmako.shortcuts import render_to_response
+from instructor.views.api import require_level
 from student import views as student_views
 from student.models import CourseEnrollment
-from edxmako.shortcuts import render_to_response
+from opaque_keys.edx.keys import CourseKey
 from xmodule.modulestore.django import modulestore
 
 from datetime import datetime
@@ -88,10 +90,8 @@ def summary(request):
     return render_to_response('summary.html')
 
 
+@require_level('staff')
 def summary_handler(request):
-
-    if not request.user.is_superuser:
-        return HttpResponseNotFound()
 
     courses = modulestore().get_courses()
     courses = sorted(courses, key=lambda x: x.start, reverse=True)
@@ -111,3 +111,59 @@ def summary_handler(request):
         'dates': request.GET.getlist('dates[]'),
         'courses': courses
     }))
+
+
+@require_level('staff')
+def date_check(request, course_id):
+
+    row = '<tr><td>%s</td>%s%s</tr>'
+    date_cell = '<td class="%(status)s">%(date)s</td>'
+
+    def get_date(date):
+        return date.strftime('%d/%m/%Y %H:%M') if date is not None else 'N/A'
+
+    def date_correct_start(date):
+        status = 'date-error'
+        if date is None:
+            status = 'date-na'
+        elif all([date.isoweekday() == 7, date.hour == 21, date.minute == 0, date.second == 0]):
+            status = 'date-ok'
+        return {
+            'date': get_date(date),
+            'status': status
+        }
+
+    def date_correct_due(date):
+        status = 'date-error'
+        if date is None:
+            status = 'date-na'
+        elif all([date.isoweekday() == 7, date.hour == 20, date.minute == 59, date.second == 0]):
+            status = 'date-ok'
+        return {
+            'date': get_date(date),
+            'status': status
+        }
+
+    def build_children(children, res, depth=0):
+
+        for i in children:
+
+            i = modulestore().get_item(i)
+            res.append(row % ('<span class="tab"></span>' * depth + i.display_name_with_default,
+                              date_cell % date_correct_start(i.start),
+                              date_cell % date_correct_due(i.due)))
+
+            if i.has_children and i.children is not None and len(i.children):
+                build_children(i.children, res, depth + 1)
+
+    course_key = CourseKey.from_string(course_id)
+    course = modulestore().get_course(course_key)
+
+    rows = []
+    build_children(course.children, rows)
+
+    return render_to_response('date_check.mako', {
+        'course_id': course_id,
+        'course_name': course.display_name_with_default,
+        'content': '<table>%s</table>' % "".join(rows),
+    })
