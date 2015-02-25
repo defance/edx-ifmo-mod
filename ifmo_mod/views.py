@@ -137,7 +137,7 @@ def date_check(request, course_id):
         status = 'date-error'
         if date is None:
             status = 'date-na'
-        elif all([date.isoweekday() == 7, date.hour == 20, date.minute == 59, date.second == 0]):
+        elif all([date.isoweekday() == 7, date.hour == 21, date.minute == 0, date.second == 0]):
             status = 'date-ok'
         return {
             'date': get_date(date),
