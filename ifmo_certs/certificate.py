@@ -57,7 +57,7 @@ class CertificateBase(object):
         if source_file is None:
             print "Wanted to generate certificate for user_id=%s with mode=%s but have no file specified" % \
                   (self.user_id, self.type)
-            return false
+            return False
 
         source_file = "%s/%s" % (self.source_dir, source_file)
 
@@ -67,16 +67,24 @@ class CertificateBase(object):
 
         utils.ensure_dir(self.pdf_local_location)
 
-        string = utils.get_file_contents(source_file).format(
-            student_name=self.student_printed_name.encode('utf-8'),
+        try:
+            string = utils.get_file_contents(source_file).format(
+                student_name=self.student_printed_name.encode('utf-8'),
+                title='{course_name}'.format(
+                    student_name=self.student_printed_name.encode('utf8'),
+                  course_name=self.course_name
+                )
+           )
+        except Exception as e:
+           print "File not found: %s" % source_file
+           raise e
 
-            title='{course_name}'.format(
-                student_name=self.student_printed_name.encode('utf8'),
-                course_name=self.course_name
-            )
-        )
-        p = Popen(['weasyprint', '--base-url', self.source_dir, '-', self.pdf_local_filename], stdin=PIPE)
-        p.communicate(input=string)
+        try:
+            p = Popen(['weasyprint', '--base-url', self.source_dir, '-', self.pdf_local_filename], stdin=PIPE)
+            p.communicate(input=string)
+        except Exception as e:
+            print "Weasyprint not found"
+            raise e
 
         print "Generated certificate for user_id=%s" % (self.user_id,)
 
