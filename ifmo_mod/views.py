@@ -7,6 +7,7 @@ from student import views as student_views
 from student.models import CourseEnrollment
 from opaque_keys.edx.keys import CourseKey
 from xmodule.modulestore.django import modulestore
+from xmodule.modulestore.exceptions import ItemNotFoundError
 
 from datetime import datetime
 import json
@@ -147,14 +148,16 @@ def date_check(request, course_id):
     def build_children(children, res, depth=0):
 
         for i in children:
+            try:
+                i = modulestore().get_item(i)
+                res.append(row % ('<span class="tab"></span>' * depth + i.display_name_with_default,
+                                  date_cell % date_correct_start(i.start),
+                                  date_cell % date_correct_due(i.due)))
 
-            i = modulestore().get_item(i)
-            res.append(row % ('<span class="tab"></span>' * depth + i.display_name_with_default,
-                              date_cell % date_correct_start(i.start),
-                              date_cell % date_correct_due(i.due)))
-
-            if i.has_children and i.children is not None and len(i.children):
-                build_children(i.children, res, depth + 1)
+                if i.has_children and i.children is not None and len(i.children):
+                    build_children(i.children, res, depth + 1)
+            except ItemNotFoundError:
+                pass
 
     course_key = CourseKey.from_string(course_id)
     course = modulestore().get_course(course_key)
