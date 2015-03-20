@@ -11,5 +11,5 @@ class X0008_01(CertificateBase):  # noqa
         'Simple': 'certificate.html'
     }
     source_dir = path(__file__).dirname() + '/resources/'
-    course_id = 'ITMO/x0008.01/2015_11'
+    course_id = 'ITMO/x0008.01/2015_01'
     course_name = 'x0008.01 Введение в технологии веб-программирования (Javascript)'
