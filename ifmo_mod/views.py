@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound, HttpResponseForbidden
 from django.views.decorators.http import require_POST
 from edxmako.shortcuts import render_to_response
 from instructor.views.api import require_level
@@ -91,8 +91,10 @@ def summary(request):
     return render_to_response('summary.html')
 
 
-@require_level('staff')
 def summary_handler(request):
+
+    if not request.user.is_superuser:
+        return HttpResponseNotFound()
 
     courses = modulestore().get_courses()
     courses = sorted(courses, key=lambda x: x.start, reverse=True)
