@@ -1,4 +1,4 @@
-from xblock.fields import Scope, Field
+from xblock.fields import Scope, Field, Boolean
 from xmodule.course_module import CourseFields, CourseDescriptor
 
 
@@ -36,6 +36,9 @@ class AuthorField(Field):
 def _property_author(self):
     return self.course_author
 
+def _property_hidden(self):
+    return self.course_hidden
+
 
 def patch():
     """
@@ -48,3 +51,11 @@ def patch():
         default=""
     )
     CourseDescriptor.author = property(_property_author)
+
+    CourseFields.course_hidden = Boolean(
+        display_name="Course Is Hidden",
+        help="Determine whether course is hidden. It is available only by direct link.",
+        scope=Scope.settings,
+        default=False
+    )
+    CourseDescriptor.hidden = property(_property_hidden)
