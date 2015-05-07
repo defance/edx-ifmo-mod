@@ -48,7 +48,8 @@ class Command(BaseCommand):
         'visited': 0,
         'not_started': 0,
         'changed': 0,
-        'htmlacademy_calls': 0
+        'htmlacademy_calls': 0,
+        'totally_unchecked': 0,
     }
 
     htmlacademy_cache = {}
@@ -140,11 +141,13 @@ class Command(BaseCommand):
             element_data = get_element_data(htmlacademy_data, data['element'])
 
             # Calculate new score
-            new_score = element_data['tasks_completed']/float(element_data['tasks_total'])
-            correctness = 'incorrect' if new_score is 0 else 'correct' if new_score is 1.0 else 'partial'
+            new_score = round(element_data['tasks_completed']/float(element_data['tasks_total']), 2)
+            correctness = 'incorrect' if new_score == 0 else 'correct' if new_score == 1.0 else 'partial'
 
             # Update all data
             if module.grade != new_score:
+                if module.grade is None:
+                    self.report['totally_unchecked'] += 1
                 module.grade = new_score
                 need_save = True
 
@@ -156,17 +159,19 @@ class Command(BaseCommand):
             # We need to add something to 'student_answers' and 'correct_map' for grade being visible
             state = json.loads(module.state)
 
+            # Check existence of correct_map
+            if 'correct_map' not in state:
+                state['correct_map'] = {}
+                need_save = True
+
             # We have already all inputs listed, update answers and map using this list
             for input_element in state['input_state'].keys():
 
-                # Check existence of correct_map
-                if 'correct_map' not in state:
-                    state['correct_map'] = {}
-                    need_save = True
-
                 # If it is empty -- student has not tried
                 if input_element not in state['correct_map']:
-                    state['correct_map'] = {input_element: {'npoints': new_score, 'correctness': correctness}}
+                    state['correct_map'] = {input_element: {'npoints': new_score,
+                                                            'correctness': correctness,
+                                                            'msg': 'Your total score is %s' % new_score}}
                     need_save = True
 
                 # Otherwise -- just update score
@@ -183,8 +188,10 @@ class Command(BaseCommand):
                     need_save = True
 
                 # Update student_answers, it can contain any dummy
-                if input_element not in state['student_answers']:
-                    state['student_answers'] = {input_element: 'graded-by-command'}
+                dummy_input_element = '%s_user' % input_element
+                if dummy_input_element not in state['student_answers']:
+                    state['student_answers'] = {input_element: '',
+                                                dummy_input_element: module.student_id}
                     need_save = True
 
             if need_save:
@@ -194,5 +201,10 @@ class Command(BaseCommand):
                 module.state = json.dumps(state)
                 module.save()
 
-        print "All done: visited={visited} changed={changed} not_started={not_started} skipped={skipped} " \
-              "htmlacademycalls={htmlacademy_calls}".format(**self.report)
+        print "All done: \n" \
+              "    Total modules:          {visited}\n" \
+              "    Changed modules:        {changed}\n" \
+              "    Grade is None:          {totally_unchecked}\n\n" \
+              "    Not HTMLAcademy module:     {skipped}\n" \
+              "    HTMLAcademy api calls:      {htmlacademy_calls}\n" \
+              "    Error HTMLAcademy response: {not_started}".format(**self.report)
