@@ -17,6 +17,7 @@ from ifmo_certs.courses.x0008_01 import *
 from ifmo_certs.courses.x0005_02 import *
 from ifmo_certs.courses.x0009_01 import *
 from ifmo_certs.courses.x0007_01 import *
+from ifmo_certs.courses.x0002_02 import *
 
 
 class Command(BaseCommand):
@@ -38,6 +39,7 @@ class Command(BaseCommand):
         'x0005_02': X0005_02,
         'x0009_01': X0009_01,
         'x0007_01': X0007_01,
+        'x0002_02': X0002_02,
     }
 
     option_list = BaseCommand.option_list + (
