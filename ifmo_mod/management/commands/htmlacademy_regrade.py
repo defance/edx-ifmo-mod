@@ -34,6 +34,9 @@ class Command(BaseCommand):
         make_option('-c', '--course',
                     dest='course', default=None,
                     help="Course id"),
+        make_option('-u', '--user',
+                    dest='user', default=None,
+                    help="Username"),
         make_option('--save',
                     action='store_true',
                     dest='save_changes',
@@ -95,6 +98,9 @@ class Command(BaseCommand):
 
         # Get module list, we need only problem types
         modules = StudentModule.objects.filter(course_id=course, module_type='problem')
+
+        if options.get('user') is not None:
+            modules = modules.filter(student__username=options.get('user'))
 
         # Iterate over all modules
         for module in modules:
