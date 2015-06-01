@@ -1,4 +1,4 @@
-from xblock.fields import Scope, Field, Boolean
+from xblock.fields import Scope, Field, Boolean, String
 from xmodule.course_module import CourseFields, CourseDescriptor
 
 
@@ -36,8 +36,17 @@ class AuthorField(Field):
 def _property_author(self):
     return self.course_author
 
+
 def _property_hidden(self):
     return self.course_hidden
+
+
+def _property_meta_description(self):
+    return self.meta_description
+
+
+def _property_meta_keywords(self):
+    return self.meta_keywords
 
 
 def patch():
@@ -59,3 +68,10 @@ def patch():
         default=False
     )
     CourseDescriptor.hidden = property(_property_hidden)
+
+    CourseFields.meta_keywords = String(
+        display_name="META keywords",
+        scope=Scope.settings,
+        default=""
+    )
+    CourseDescriptor.meta_keywords = property(_property_meta_keywords)
