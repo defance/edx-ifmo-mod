@@ -69,15 +69,17 @@ def patch():
     )
     CourseDescriptor.hidden = property(_property_hidden)
 
-    CourseFields.meta_keywords = String(
+    CourseFields.meta_description = String(
         display_name="META keywords",
+        help="Description",
         scope=Scope.settings,
         default=""
     )
-    CourseDescriptor.meta_keywords = property(_property_meta_keywords)
+    CourseDescriptor.meta_description = property(_property_meta_description)
 
     CourseFields.meta_keywords = String(
         display_name="META description",
+        help="Keywords",
         scope=Scope.settings,
         default=""
     )
