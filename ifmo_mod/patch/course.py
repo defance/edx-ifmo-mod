@@ -75,3 +75,10 @@ def patch():
         default=""
     )
     CourseDescriptor.meta_keywords = property(_property_meta_keywords)
+
+    CourseFields.meta_keywords = String(
+        display_name="META description",
+        scope=Scope.settings,
+        default=""
+    )
+    CourseDescriptor.meta_keywords = property(_property_meta_description)
