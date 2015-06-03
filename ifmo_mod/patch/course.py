@@ -42,11 +42,11 @@ def _property_hidden(self):
 
 
 def _property_meta_description(self):
-    return self.meta_description
+    return self.fld_meta_description
 
 
 def _property_meta_keywords(self):
-    return self.meta_keywords
+    return self.fld_meta_keywords
 
 
 def patch():
@@ -69,7 +69,7 @@ def patch():
     )
     CourseDescriptor.hidden = property(_property_hidden)
 
-    CourseFields.meta_description = String(
+    CourseFields.fld_meta_description = String(
         display_name="META keywords",
         help="Description",
         scope=Scope.settings,
@@ -77,10 +77,10 @@ def patch():
     )
     CourseDescriptor.meta_description = property(_property_meta_description)
 
-    CourseFields.meta_keywords = String(
+    CourseFields.fld_meta_keywords = String(
         display_name="META description",
         help="Keywords",
         scope=Scope.settings,
         default=""
     )
-    CourseDescriptor.meta_keywords = property(_property_meta_description)
+    CourseDescriptor.meta_keywords = property(_property_meta_keywords)
