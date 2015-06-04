@@ -50,7 +50,8 @@ class Command(BaseCommand):
         'changed': 0,
         'academic_calls': 0,
         'skipped_zero': 0,
-        'errors': 0
+        'errors': 0,
+        'totally_unchecked': 0,
     }
 
     def get_academicnt_data(self, student_module):
