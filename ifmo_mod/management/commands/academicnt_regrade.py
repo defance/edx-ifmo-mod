@@ -49,6 +49,7 @@ class Command(BaseCommand):
         'not_started': 0,
         'changed': 0,
         'academic_calls': 0,
+        'skipped_zero': 0,
         'errors': 0
     }
 
@@ -124,35 +125,39 @@ class Command(BaseCommand):
 
             # Just skip zero-scored
             if score == 0:
-                self.report['not_started'] += 1
+                self.report['skipped_zero'] += 1
                 continue
 
             # Update all data
             if module.grade != score:
+                if module.grade is None:
+                    self.report['totally_unchecked'] += 1
                 module.grade = score
                 need_save = True
 
             # Check field max_grade, it is needed to be displayed in progress
-            if module.max_grade != 1:
-                module.max_grade = 1
+            if module.max_grade != 1.0:
+                module.max_grade = 1.0
                 need_save = True
 
-            correctness = 'correct' if score == 100 else 'incorrect' if score == 0 else 'partial'
+            correctness = 'correct' if score == 1.0 else 'incorrect' if score == 0 else 'partial'
 
             # We need to add something to 'student_answers' and 'correct_map' for grade being visible
             state = json.loads(module.state)
 
+            # Check existence of correct_map
+            if 'correct_map' not in state:
+                state['correct_map'] = {}
+                need_save = True
+
             # We have already all inputs listed, update answers and map using this list
             for input_element in state['input_state'].keys():
 
-                # Check existence of correct_map
-                if 'correct_map' not in state:
-                    state['correct_map'] = {}
-                    need_save = True
-
                 # If it is empty -- student has not tried
                 if input_element not in state['correct_map']:
-                    state['correct_map'] = {input_element: {'npoints': score, 'correctness': correctness}}
+                    state['correct_map'] = {input_element: {'npoints': score,
+                                                            'correctness': correctness,
+                                                            'msg': 'Your total score is %s' % score}}
                     need_save = True
 
                 # Otherwise -- just update score
@@ -189,5 +194,11 @@ class Command(BaseCommand):
                 module.state = json.dumps(state)
                 module.save()
 
-        print "All done: visited={visited} changed={changed} not_started={not_started} skipped={skipped} " \
-              "htmlacademycalls={academic_calls}".format(**self.report)
+        print "All done: \n" \
+              "    Total modules:           {visited}\n" \
+              "    Changed modules:         {changed}\n" \
+              "    Grade is None:           {totally_unchecked}\n\n" \
+              "    New grade is zero:       {skipped_zero}\n" \
+              "    Not HTMLAcademy module:  {skipped}\n" \
+              "    Academic api calls:      {academic_calls}\n" \
+              "    Error Academic response: {not_started}".format(**self.report)
