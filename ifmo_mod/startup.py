@@ -33,7 +33,7 @@ def patch_middleware():
 
 def run():
     patch_templates()
-    patch_urls()
+    # patch_urls()
     course.patch()
     problem.patch()
     patch_middleware()
